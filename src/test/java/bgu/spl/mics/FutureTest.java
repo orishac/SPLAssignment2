@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FutureTest {
 
-    private Future<String> future;
+    private sFuture<String> future;
 
     @BeforeEach
     public void setUp(){
