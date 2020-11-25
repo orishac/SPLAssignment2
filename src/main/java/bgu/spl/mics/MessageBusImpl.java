@@ -9,18 +9,7 @@ import java.util.Queue;
  */
 public class MessageBusImpl implements MessageBus {
 
-	private static MessageBusImpl instance = null;
 
-	private MessageBusImpl() {
-		//initialize
-	}
-	public static MessageBusImpl getInstance() {
-		if(instance == null) {
-			instance = new MessageBusImpl();
-		}
-		return instance;
-	}
-	
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		
