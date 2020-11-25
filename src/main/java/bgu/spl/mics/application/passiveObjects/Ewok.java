@@ -15,13 +15,13 @@ public class Ewok {
      * Acquires an Ewok
      */
     public void acquire() {
-		
+		available = false;
     }
 
     /**
      * release an Ewok
      */
     public void release() {
-    	
+    	available = true;
     }
 }
