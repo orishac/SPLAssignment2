@@ -1,7 +1,9 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.Broadcast;
+import bgu.spl.mics.Message;
 import bgu.spl.mics.MicroService;
+
 
 public class testMicroservice extends MicroService {
 
@@ -19,6 +21,9 @@ public class testMicroservice extends MicroService {
 
     }
 
+    public Message awaitMessage() {
+        return null;
+    }
 
 
 }

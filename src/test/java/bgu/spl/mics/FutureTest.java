@@ -1,6 +1,5 @@
 package bgu.spl.mics;
 
-import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,27 +27,27 @@ public class FutureTest {
         String str = "someResult";
         future.resolve(str);
         assertTrue(future.isDone());
-        assertTrue(str.equals(future.get()));
+        assertEquals(str, future.get());
     }
 
     @Test
     public void testGet1() {
         String str = "someResult";
         future.resolve(str);
-        Assert.assertEquals("someResult", future.get());
+        assertEquals("someResult", future.get());
     }
 
     @Test
     public void testIsDone() {
         String str = "someResult";
         future.resolve(str);
-        Assert.assertTrue(future.isDone());
+        assertTrue(future.isDone());
     }
 
     @Test
     public void testGet2() {
         String str = "someResult";
         future.resolve(str);
-        Assert.assertEquals("someResult", future.get(1, TimeUnit.SECONDS));
+        assertEquals("someResult", future.get(1, TimeUnit.SECONDS));
     }
 }
