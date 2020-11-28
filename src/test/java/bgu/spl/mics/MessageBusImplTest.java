@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.services.testMicroservice;
 import bgu.spl.mics.example.messages.ExampleBroadcast;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,5 +52,10 @@ class MessageBusImplTest {
 
     @Test
     void awaitMessage() {
+        testBus.register(m1);
+        AttackEvent e1 = new AttackEvent();
+        m1.subscribeEvent(AttackEvent.class, (callback)->{});
+        testBus.sendEvent(e1);
+        assertEquals(e1, m1.awaitMessage());
     }
 }
