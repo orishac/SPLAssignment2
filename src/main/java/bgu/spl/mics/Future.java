@@ -18,7 +18,7 @@ public class Future<T> {
 	 * This should be the the only public constructor in this class.
 	 */
 	public Future() {
-		
+
 	}
 	
 	/**
@@ -30,7 +30,15 @@ public class Future<T> {
      * 	       
      */
 	public T get() {
-        return result;
+		synchronized (this) {
+			while(!isDone)
+				try {
+					this.wait();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
+		return result;
 	}
 	
 	/**
@@ -60,8 +68,18 @@ public class Future<T> {
      *         elapsed, return null.
      */
 	public T get(long timeout, TimeUnit unit) {
-		
-        return null;
+		synchronized (this) {
+			if(!isDone)
+				try {
+					this.wait(timeout, (int) unit.toNanos(timeout));
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
+		if(isDone) {
+			return result;
+		}
+		return null;
 	}
 
 }
