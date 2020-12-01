@@ -19,7 +19,8 @@ package bgu.spl.mics;
  * <p>
  */
 public abstract class MicroService implements Runnable { 
-    
+
+    private static MessageBusImpl bus;
 
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -51,7 +52,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-    	
+    	bus.subscribeEvent();
     }
 
     /**
@@ -75,7 +76,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-    	
+    	bus.subscribeBroadcast();
     }
 
     /**
@@ -91,8 +92,7 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-    	
-        return null; 
+    	bus.sendEvent()
     }
 
     /**
@@ -102,7 +102,7 @@ public abstract class MicroService implements Runnable {
      * @param b The broadcast message to send
      */
     protected final void sendBroadcast(Broadcast b) {
-    	
+    	bus.sendBroadcast();
     }
 
     /**
@@ -116,7 +116,7 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-    	
+    	bus.complete();
     }
 
     /**
