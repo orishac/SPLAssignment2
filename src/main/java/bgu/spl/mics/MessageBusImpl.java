@@ -1,6 +1,7 @@
 package bgu.spl.mics;
 
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -8,6 +9,24 @@ import java.util.Queue;
  * Only private fields and methods can be added to this class.
  */
 public class MessageBusImpl implements MessageBus {
+
+	private static MessageBusImpl instance;
+	private ConcurrentHashMap hashMap;
+
+	private MessageBusImpl(){
+		hashMap = new ConcurrentHashMap();
+	}
+
+	private static MessageBusImpl getInstance() {
+		if (instance== null) {
+			synchronized (MessageBusImpl.class) {
+				if (instance == null) {
+					instance = new MessageBusImpl();
+				}
+			}
+		}
+		return instance;
+	}
 
 
 	@Override
@@ -39,7 +58,6 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
-		
 	}
 
 	@Override
