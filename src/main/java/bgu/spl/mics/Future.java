@@ -70,17 +70,17 @@ public class Future<T> {
      */
 	public T get(long timeout, TimeUnit unit) {
 		synchronized (this) {
-			if(!isDone)
+			if (!isDone)
 				try {
 					this.wait(timeout, (int) unit.toNanos(timeout));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			if (isDone) {
+				return result;
+			}
+			return null;
 		}
-		if(isDone) {
-			return result;
-		}
-		return null;
 	}
 
 }

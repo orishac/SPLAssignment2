@@ -18,7 +18,7 @@ class MessageBusImplTest {
 
     @BeforeEach
     void setUp() {
-        testBus = new MessageBusImpl();
+
         m1 = new testMicroservice("m1");
         m2 = new testMicroservice("m2");
     }

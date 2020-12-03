@@ -21,6 +21,7 @@ package bgu.spl.mics;
 public abstract class MicroService implements Runnable { 
 
     private static MessageBusImpl bus;
+    private String name;
 
 
     /**
@@ -28,7 +29,7 @@ public abstract class MicroService implements Runnable {
      *             does not have to be unique)
      */
     public MicroService(String name) {
-    	
+    	this.name = name;
     }
 
     /**
@@ -53,7 +54,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-    	bus.subscribeEvent();
+    	bus.subscribeEvent(type, this);
     }
 
     /**
@@ -77,7 +78,7 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-    	bus.subscribeBroadcast();
+    	bus.subscribeBroadcast(type, this);
     }
 
     /**
@@ -93,7 +94,7 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-    	bus.sendEvent()
+    	return bus.sendEvent(e);
     }
 
     /**
@@ -103,7 +104,7 @@ public abstract class MicroService implements Runnable {
      * @param b The broadcast message to send
      */
     protected final void sendBroadcast(Broadcast b) {
-    	bus.sendBroadcast();
+    	bus.sendBroadcast(b);
     }
 
     /**
@@ -117,7 +118,7 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-    	bus.complete();
+
     }
 
     /**
@@ -147,7 +148,22 @@ public abstract class MicroService implements Runnable {
      */
     @Override
     public final void run() {
-    	
+    	bus.register(this);
+    	initialize();
+    	Message message;
+    	while(!terminate) {
+    	    try {
+    	        message= bus.awaitMessage(this);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+    	if(terminate()) {
+    	    bus.unregister(this);
+        }
+
     }
 
 }
