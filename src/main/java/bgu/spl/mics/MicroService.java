@@ -139,7 +139,7 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
-
+        terminate = true;
     }
 
     /**
@@ -172,7 +172,7 @@ public abstract class MicroService implements Runnable {
     	if(terminate) {
     	    bus.unregister(this);
         }
-
+    	return;
     }
 
 }

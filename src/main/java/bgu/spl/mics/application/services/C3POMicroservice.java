@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
@@ -15,7 +16,8 @@ import bgu.spl.mics.application.messages.AttackEvent;
  */
 public class C3POMicroservice extends MicroService {
 
-    private Class AttackEvent;
+    private Class<? extends Event> AttackEvent;
+    private Class<? extends Broadcast> TerminateBroadcast;
 
     public C3POMicroservice() {
         super("C3PO");
@@ -23,11 +25,15 @@ public class C3POMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeEvent(AttackEvent, C3PO->call());
+        subscribeEvent(AttackEvent, (C3PO)->handleHattack());
     }
 
-    private void call() {
-
+    private void handleHattack() {
+        //attack handling
+        //send deactivation event?
+        subscribeBroadcast(TerminateBroadcast, (C3PO)->terminate());
     }
+
+
 
 }

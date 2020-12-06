@@ -1,8 +1,11 @@
 package bgu.spl.mics.application.services;
 
 
+import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DeactivationEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 
 /**
  * HanSoloMicroservices is in charge of the handling {@link AttackEvents}.
@@ -14,7 +17,8 @@ import bgu.spl.mics.MicroService;
  */
 public class HanSoloMicroservice extends MicroService {
 
-    private Class<Event> AttackEvent;
+    private Class<? extends Event> AttackEvent;
+    private Class<? extends Broadcast> TerminateBroadcast;
 
     public HanSoloMicroservice() {
         super("Han");
@@ -23,9 +27,14 @@ public class HanSoloMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
-        subscribeEvent(AttackEvent, C3PO->call());
+        subscribeEvent(AttackEvent, (Han)->handleAttack());
     }
 
-    private void call() {
+    private void handleAttack() {
+        //handle attack
+        //send deactivation event?
+        subscribeBroadcast(TerminateBroadcast, (Han)->terminate());
     }
+
+
 }
