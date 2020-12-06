@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 
 
+import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -13,6 +14,8 @@ import bgu.spl.mics.MicroService;
  */
 public class HanSoloMicroservice extends MicroService {
 
+    private Class<Event> AttackEvent;
+
     public HanSoloMicroservice() {
         super("Han");
     }
@@ -20,6 +23,9 @@ public class HanSoloMicroservice extends MicroService {
 
     @Override
     protected void initialize() {
+        subscribeEvent(AttackEvent, C3PO->call());
+    }
 
+    private void call() {
     }
 }

@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.DeactivationEvent;
 
 /**
  * R2D2Microservices is in charge of the handling {@link DeactivationEvent}.
@@ -12,12 +14,17 @@ import bgu.spl.mics.MicroService;
  */
 public class R2D2Microservice extends MicroService {
 
+    private Class<Event> DeactivationEvent;
+
     public R2D2Microservice(long duration) {
         super("R2D2");
     }
 
     @Override
     protected void initialize() {
+        subscribeEvent(DeactivationEvent, C3PO->call());
+    }
 
+    private void call() {
     }
 }

@@ -2,6 +2,7 @@ package bgu.spl.mics;
 
 import jdk.internal.net.http.common.Pair;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -13,13 +14,17 @@ public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl instance;
 	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> hashMap;
-	private ConcurrentHashMap<Pair<Class<? extends Event>,MicroService>, MicroService> eventMap;
-	private ConcurrentHashMap<Pair<Class<? extends Broadcast>, MicroService>, MicroService> broadcastMap;
+	//private ConcurrentHashMap<Pair<Class<? extends Event>,MicroService>, MicroService> eventMap;
+	//private ConcurrentHashMap<Pair<Class<? extends Broadcast>, MicroService>, MicroService> broadcastMap;
+	private ConcurrentHashMap<Event, Future> futureMap;
+	private ConcurrentLinkedDeque<Pair<Class<? extends Message>,MicroService>> subscriptionList;
 
 	private MessageBusImpl(){
 		hashMap = new ConcurrentHashMap<>();
-		eventMap = new ConcurrentHashMap<>();
-		broadcastMap = new ConcurrentHashMap<>();
+		//eventMap = new ConcurrentHashMap<>();
+		//broadcastMap = new ConcurrentHashMap<>();
+		futureMap = new ConcurrentHashMap<>();
+		subscriptionList = new ConcurrentLinkedDeque<>();
 	}
 
 	private static MessageBusImpl getInstance() {
@@ -37,31 +42,29 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		if (hashMap.contains(m)) {
-			Pair<Class<? extends Event>, MicroService> p = new Pair<>(type, m);
-			eventMap.putIfAbsent(p, m);
+			Pair<Class<? extends Message>, MicroService> p = new Pair<>(type, m);
+			subscriptionList.add(p);
 		}
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		if (hashMap.contains(m)) {
-			Pair<Class<? extends Broadcast>, MicroService> p = new Pair<>(type, m);
-			broadcastMap.putIfAbsent(p, m);
+			Pair<Class<? extends Message>, MicroService> p = new Pair<>(type, m);
+			subscriptionList.add(p);
 		}
     }
 
 	@Override @SuppressWarnings("unchecked")
 	public <T> void complete(Event<T> e, T result) {
-		
+		futureMap.get(e).resolve(result);
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		if (broadcastMap.contains(b)) {
-			for(Pair p : broadcastMap.keySet()) {
-				if (b.equals(p.first)) {
-					hashMap.get(p.second).add(b);
-				}
+		for (Pair p : subscriptionList) {
+			if (p.first.getClass() == b.getClass()) {
+				hashMap.get(p.second).add(b);
 			}
 		}
 	}
@@ -69,11 +72,14 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		if (eventMap.contains(e)) {
-			MicroService m = eventMap.get(e);
-			hashMap.get(m).add(e);
+		for (Pair p : subscriptionList) {
+			if (p.first.getClass() == e.getClass()) {
+				hashMap.get(p.second).add(e);
+				break;
+			}
 		}
 		Future<T> future = new Future<>();
+		futureMap.put(e, future);
 		return future;
 	}
 

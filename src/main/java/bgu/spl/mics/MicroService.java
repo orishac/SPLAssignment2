@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * The MicroService is an abstract class that any micro-service in the system
  * must extend. The abstract MicroService class is responsible to get and
@@ -22,6 +24,8 @@ public abstract class MicroService implements Runnable {
 
     private static MessageBusImpl bus;
     private String name;
+    private ConcurrentHashMap<Class<? extends Message>, Callback> callbackMap;
+    private boolean terminate;
 
 
     /**
@@ -30,6 +34,8 @@ public abstract class MicroService implements Runnable {
      */
     public MicroService(String name) {
     	this.name = name;
+    	callbackMap = new ConcurrentHashMap<>();
+    	bus.register(this);
     }
 
     /**
@@ -55,6 +61,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
     	bus.subscribeEvent(type, this);
+    	callbackMap.put(type, callback);
     }
 
     /**
@@ -79,6 +86,7 @@ public abstract class MicroService implements Runnable {
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
     	bus.subscribeBroadcast(type, this);
+        callbackMap.put(type, callback);
     }
 
     /**
@@ -118,7 +126,7 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-
+        bus.complete(e,result);
     }
 
     /**
@@ -131,7 +139,7 @@ public abstract class MicroService implements Runnable {
      * message.
      */
     protected final void terminate() {
-    	
+
     }
 
     /**
@@ -150,17 +158,18 @@ public abstract class MicroService implements Runnable {
     public final void run() {
     	bus.register(this);
     	initialize();
-    	Message message;
+    	Message message=null;
     	while(!terminate) {
     	    try {
     	        message= bus.awaitMessage(this);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
+    	    if (message!=null) {
+    	        callbackMap.get(message).call(message);
+            }
         }
-
-    	if(terminate()) {
+    	if(terminate) {
     	    bus.unregister(this);
         }
 

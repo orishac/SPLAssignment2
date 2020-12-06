@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.AttackEvent;
 
 
 /**
@@ -12,13 +14,20 @@ import bgu.spl.mics.MicroService;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class C3POMicroservice extends MicroService {
-	
+
+    private Class AttackEvent;
+
     public C3POMicroservice() {
         super("C3PO");
     }
 
     @Override
     protected void initialize() {
+        subscribeEvent(AttackEvent, C3PO->call());
+    }
+
+    private void call() {
 
     }
+
 }
