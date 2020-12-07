@@ -11,4 +11,16 @@ package bgu.spl.mics.application.passiveObjects;
  */
 public class Ewoks {
 
+    private static class EwoksHolder {
+        private static Ewoks instance = new Ewoks();
+    }
+
+    private Ewoks() {
+        //toadd
+    }
+
+    public static Ewoks getInstance() {
+        return EwoksHolder.instance;
+    }
+
 }

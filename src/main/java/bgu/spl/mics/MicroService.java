@@ -1,5 +1,7 @@
 package bgu.spl.mics;
 
+import bgu.spl.mics.application.passiveObjects.Diary;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -26,6 +28,7 @@ public abstract class MicroService implements Runnable {
     private String name;
     private ConcurrentHashMap<Class<? extends Message>, Callback> callbackMap;
     private boolean terminate;
+    private Diary diary;
 
 
     /**
@@ -140,6 +143,11 @@ public abstract class MicroService implements Runnable {
      */
     protected final void terminate() {
         terminate = true;
+        writeDiary();
+    }
+
+    private void writeDiary() {
+
     }
 
     /**
@@ -169,9 +177,7 @@ public abstract class MicroService implements Runnable {
     	        callbackMap.get(message).call(message);
             }
         }
-    	if(terminate) {
-    	    bus.unregister(this);
-        }
+    	bus.unregister(this);
     	return;
     }
 

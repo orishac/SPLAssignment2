@@ -5,6 +5,7 @@ import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.BombDestroyerEvent;
 import bgu.spl.mics.application.messages.TerminateBroadcast;
+import bgu.spl.mics.application.passiveObjects.Diary;
 
 /**
  * LandoMicroservice
@@ -13,8 +14,10 @@ import bgu.spl.mics.application.messages.TerminateBroadcast;
  */
 public class LandoMicroservice  extends MicroService {
 
+    private Diary diary;
     private Class<Event> BombDestroyerEvent;
     private Class<? extends Broadcast> TerminateBroadcast;
+    private BombDestroyerEvent bomb;
     private long duration;
 
     public LandoMicroservice(long duration) {
@@ -24,13 +27,27 @@ public class LandoMicroservice  extends MicroService {
 
     @Override
     protected void initialize() {
-       subscribeEvent(BombDestroyerEvent, Lando->handleBombDestroyer());
+        diary = Diary.getInstance();
+        subscribeEvent(BombDestroyerEvent, Lando-> {
+           try {
+               handleBombDestroyer(bomb);
+           } catch (InterruptedException e) {
+               e.printStackTrace();
+           }
+       });
     }
 
-    private void handleBombDestroyer() {
+    private void handleBombDestroyer(BombDestroyerEvent bomb) throws InterruptedException {
         //handle the bomb destroyer event
+        this.bomb = bomb;
+        Thread.sleep(duration);
+        //write to diary
         subscribeBroadcast(TerminateBroadcast, (Lando)->terminate());
         sendBroadcast(new TerminateBroadcast());
+    }
+
+    private void writeDiary() {
+        diary.setLandoTerminate(System.currentTimeMillis());
     }
 
 
