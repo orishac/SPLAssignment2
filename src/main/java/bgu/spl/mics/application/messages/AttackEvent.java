@@ -10,6 +10,8 @@ public class AttackEvent implements Event<Boolean> {
     private int duration;
     private boolean isDone;
 
+    public AttackEvent() {
+    }
 
     public AttackEvent(Attack attack) {
         this.serials = attack.getSerials();

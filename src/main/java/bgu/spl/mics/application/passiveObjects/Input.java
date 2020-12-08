@@ -30,4 +30,7 @@ public class Input {
 	public void setAttacks(Attack[] attacks) {
 		this.attacks = attacks;
 	}
+	public String toString() {
+		return ""+R2D2+"+"+Lando+"+"+Ewoks;
+	}
 }

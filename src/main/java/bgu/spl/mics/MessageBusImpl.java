@@ -1,7 +1,5 @@
 package bgu.spl.mics;
 
-
-import jdk.internal.net.http.common.Pair;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -13,7 +11,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class MessageBusImpl implements MessageBus {
 
-	private static MessageBusImpl instance;
+	private static class MessageBusHolder {
+		private static MessageBusImpl instance = new MessageBusImpl();
+	}
 	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> hashMap;
 	private ConcurrentHashMap<Event, Future> futureMap;
 	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedDeque> subscriptionList;
@@ -24,31 +24,20 @@ public class MessageBusImpl implements MessageBus {
 		subscriptionList = new ConcurrentHashMap<>();
 	}
 
-	private static MessageBusImpl getInstance() {
-		if (instance== null) {
-			synchronized (MessageBusImpl.class) {
-				if (instance == null) {
-					instance = new MessageBusImpl();
-				}
-			}
-		}
-		return instance;
+	public static MessageBusImpl getInstance() {
+		return MessageBusHolder.instance;
 	}
 
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		if (subscriptionList.get(type) == null) {
-			subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
-		}
+		subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
 		subscriptionList.get(type).add(m);
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		if (subscriptionList.get(type) == null) {
-			subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
-		}
+		subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
 		subscriptionList.get(type).add(m);
 	}
 

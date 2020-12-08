@@ -17,15 +17,16 @@ public class EwokTest {
 
     @Test
     public void acquire() {
-        test.available = true;
+        test.release();
         test.acquire();
-        assertFalse(test.available);
+        assertFalse(test.isAvailable());
     }
 
     @Test
     public void release() {
-        test.available=false;
         test.release();
-        assertTrue(test.available);
+        test.acquire();
+        test.release();
+        assertTrue(test.isAvailable());
     }
 }

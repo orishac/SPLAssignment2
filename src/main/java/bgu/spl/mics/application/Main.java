@@ -7,6 +7,8 @@ import com.google.gson.GsonBuilder;
 
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 
 /** This is the Main class of the application. You should parse the input file,
@@ -15,6 +17,7 @@ import java.io.*;
  */
 public class Main {
 	public static void main(String[] args) {
+		Input input = jsonReader();
 		Attack[] attack = input.getAttacks();
 		int num = input.getEwoks();
 		Thread leia = new Thread(new LeiaMicroservice(attack));
@@ -42,18 +45,32 @@ public class Main {
 		lando.run();
 
 		try {
-		String output = "";
-		Gson gson = new GsonBuilder().setPrettyPrinting().create();
-		FileWriter writer = new FileWriter(output);
-		gson.toJson(diary, writer);
-		writer.flush();
-		writer.close();
+			String output = "";
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			FileWriter writer = new FileWriter(output);
+			gson.toJson(diary, writer);
+			writer.flush();
+			writer.close();
 
 
-	} catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		private static Input jsonRead() {
+	}
+
+	private static Input jsonReader() {
+		try {
+			Gson gson = new Gson();
+			Reader reader = Files.newBufferedReader(Paths.get("input.json"));
+			Input input = gson.fromJson(reader, Input.class);
+			System.out.println(input);
+			reader.close();
+			return input;
+		}
+		catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
 	}
 }
