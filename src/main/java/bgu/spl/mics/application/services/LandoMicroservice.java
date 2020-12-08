@@ -23,18 +23,20 @@ public class LandoMicroservice  extends MicroService {
     public LandoMicroservice(long duration) {
         super("Lando");
         this.duration = duration;
+        bomb = new BombDestroyerEvent();
     }
 
     @Override
     protected void initialize() {
         diary = Diary.getInstance();
-        subscribeEvent(BombDestroyerEvent, Lando-> {
+        subscribeEvent(bomb.getClass(), Lando-> {
            try {
                handleBombDestroyer(bomb);
            } catch (InterruptedException e) {
                e.printStackTrace();
            }
        });
+        l1countDown();
     }
 
     private void handleBombDestroyer(BombDestroyerEvent bomb) throws InterruptedException {

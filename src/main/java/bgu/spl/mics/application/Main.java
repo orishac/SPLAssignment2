@@ -38,14 +38,8 @@ public class Main {
 		r2d2.start();
 		lando.start();
 
-		leia.run();
-		hanSolo.run();
-		c3po.run();
-		r2d2.run();
-		lando.run();
-
 		try {
-			String output = "";
+			String output = "output.json";
 			Gson gson = new GsonBuilder().setPrettyPrinting().create();
 			FileWriter writer = new FileWriter(output);
 			gson.toJson(diary, writer);

@@ -26,19 +26,21 @@ public class HanSoloMicroservice extends MicroService {
 
     public HanSoloMicroservice() {
         super("Han");
+        attack = new AttackEvent();
     }
 
 
     @Override
     protected void initialize() {
         diary = Diary.getInstance();
-        subscribeEvent(attackEvent, (Han)-> {
+        subscribeEvent(attack.getClass(), (Han)-> {
             try {
                 handleAttack(attack);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         });
+        l1countDown();
     }
 
     private void handleAttack(AttackEvent attack) throws InterruptedException {

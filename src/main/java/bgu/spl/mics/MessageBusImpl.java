@@ -16,7 +16,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> hashMap;
 	private ConcurrentHashMap<Event, Future> futureMap;
-	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedDeque> subscriptionList;
+	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedQueue> subscriptionList;
 
 	private MessageBusImpl(){
 		hashMap = new ConcurrentHashMap<>();
@@ -31,13 +31,13 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
+		subscriptionList.put(type, new ConcurrentLinkedQueue());
 		subscriptionList.get(type).add(m);
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
+		subscriptionList.put(type, new ConcurrentLinkedQueue());
 		subscriptionList.get(type).add(m);
 	}
 
@@ -48,7 +48,7 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		while (!subscriptionList.get(b).isEmpty()) {
+		while (!subscriptionList.get(b.getClass()).isEmpty()) {
 			hashMap.get(subscriptionList.get(b).poll()).add(b);
 		}
 	}
@@ -56,7 +56,7 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		hashMap.get(subscriptionList.get(e).poll()).add(e);
+		hashMap.get(subscriptionList.get(e.getClass()).poll()).add(e);
 		Future<T> future = new Future<>();
 		futureMap.put(e, future);
 		return future;
@@ -65,7 +65,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void register(MicroService m) {
 		ConcurrentLinkedQueue<Message> q = new ConcurrentLinkedQueue<>();
-		hashMap.putIfAbsent(m, q);
+		hashMap.put(m, q);
 	}
 
 	@Override
@@ -76,10 +76,12 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
 			while(hashMap.get(m).isEmpty()) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				synchronized (this) {
+					try {
+						this.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 			return hashMap.get(m).poll();

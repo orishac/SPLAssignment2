@@ -28,18 +28,20 @@ public class R2D2Microservice extends MicroService {
     public R2D2Microservice(long duration) {
         super("R2D2");
         this.duration = duration;
+        deactivation = new DeactivationEvent();
     }
 
     @Override
     protected void initialize() {
         diary = Diary.getInstance();
-        subscribeEvent(DeactivationEvent, R2D2-> {
+        subscribeEvent(deactivation.getClass(), R2D2-> {
             try {
                 handleDeactivate(deactivation);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         });
+        l1countDown();
     }
 
     private void handleDeactivate(DeactivationEvent deactivation) throws InterruptedException {

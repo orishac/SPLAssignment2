@@ -26,18 +26,20 @@ public class C3POMicroservice extends MicroService {
 
     public C3POMicroservice() {
         super("C3PO");
+        attack = new AttackEvent();
     }
 
     @Override
     protected void initialize() {
         diary = Diary.getInstance();
-        subscribeEvent(AttackEvent, (C3PO)-> {
+        subscribeEvent(attack.getClass(), (C3PO)-> {
             try {
                 handleAttack(attack);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         });
+        l1countDown();
     }
 
     private void handleAttack(AttackEvent attack) throws InterruptedException {

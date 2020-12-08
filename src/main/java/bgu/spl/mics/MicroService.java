@@ -3,6 +3,7 @@ package bgu.spl.mics;
 import bgu.spl.mics.application.passiveObjects.Diary;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * The MicroService is an abstract class that any micro-service in the system
@@ -29,6 +30,8 @@ public abstract class MicroService implements Runnable {
     private ConcurrentHashMap<Class<? extends Message>, Callback> callbackMap;
     private boolean terminate;
     private Diary diary;
+    private static CountDownLatch latch1;
+    private static CountDownLatch latch2;
 
 
     /**
@@ -38,6 +41,24 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
     	this.name = name;
     	callbackMap = new ConcurrentHashMap<>();
+    	latch1 = new CountDownLatch(4);
+        latch2 = new CountDownLatch(2);
+    }
+
+    public void l1await() throws InterruptedException {
+        latch1.await();
+    }
+
+    public void l1countDown()  {
+        latch1.countDown();
+    }
+
+    public void l2await() throws InterruptedException {
+        latch2.await();
+    }
+
+    public void l2countDown()  {
+        latch2.countDown();
     }
 
     /**
