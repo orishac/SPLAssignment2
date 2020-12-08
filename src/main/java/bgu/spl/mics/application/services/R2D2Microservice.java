@@ -46,9 +46,8 @@ public class R2D2Microservice extends MicroService {
         //handle the deactivation event
         this.deactivation = deactivation;
         Thread.sleep(duration);
+        complete(deactivation, true);
         diary.setR2D2Deactivate(System.currentTimeMillis());
-        //write to diary
-        sendEvent(new BombDestroyerEvent());
         subscribeBroadcast(TerminateBroadcast, (R2D2)->terminate());
     }
 

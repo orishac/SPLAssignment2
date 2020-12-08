@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 
+
 import jdk.internal.net.http.common.Pair;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -14,17 +15,13 @@ public class MessageBusImpl implements MessageBus {
 
 	private static MessageBusImpl instance;
 	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> hashMap;
-	//private ConcurrentHashMap<Pair<Class<? extends Event>,MicroService>, MicroService> eventMap;
-	//private ConcurrentHashMap<Pair<Class<? extends Broadcast>, MicroService>, MicroService> broadcastMap;
 	private ConcurrentHashMap<Event, Future> futureMap;
-	private ConcurrentLinkedDeque<Pair<Class<? extends Message>,MicroService>> subscriptionList;
+	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedDeque> subscriptionList;
 
 	private MessageBusImpl(){
 		hashMap = new ConcurrentHashMap<>();
-		//eventMap = new ConcurrentHashMap<>();
-		//broadcastMap = new ConcurrentHashMap<>();
 		futureMap = new ConcurrentHashMap<>();
-		subscriptionList = new ConcurrentLinkedDeque<>();
+		subscriptionList = new ConcurrentHashMap<>();
 	}
 
 	private static MessageBusImpl getInstance() {
@@ -41,19 +38,19 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		if (hashMap.contains(m)) {
-			Pair<Class<? extends Message>, MicroService> p = new Pair<>(type, m);
-			subscriptionList.add(p);
+		if (subscriptionList.get(type) == null) {
+			subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
 		}
+		subscriptionList.get(type).add(m);
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		if (hashMap.contains(m)) {
-			Pair<Class<? extends Message>, MicroService> p = new Pair<>(type, m);
-			subscriptionList.add(p);
+		if (subscriptionList.get(type) == null) {
+			subscriptionList.putIfAbsent(type, new ConcurrentLinkedDeque());
 		}
-    }
+		subscriptionList.get(type).add(m);
+	}
 
 	@Override @SuppressWarnings("unchecked")
 	public <T> void complete(Event<T> e, T result) {
@@ -62,22 +59,15 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
-		for (Pair p : subscriptionList) {
-			if (p.first.getClass() == b.getClass()) {
-				hashMap.get(p.second).add(b);
-			}
+		while (!subscriptionList.get(b).isEmpty()) {
+			hashMap.get(subscriptionList.get(b).poll()).add(b);
 		}
 	}
 
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		for (Pair p : subscriptionList) {
-			if (p.first.getClass() == e.getClass()) {
-				hashMap.get(p.second).add(e);
-				break;
-			}
-		}
+		hashMap.get(subscriptionList.get(e).poll()).add(e);
 		Future<T> future = new Future<>();
 		futureMap.put(e, future);
 		return future;
