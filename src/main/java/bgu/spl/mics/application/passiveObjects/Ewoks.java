@@ -2,6 +2,7 @@ package bgu.spl.mics.application.passiveObjects;
 
 
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Passive object representing the resource manager.
@@ -21,7 +22,7 @@ public class Ewoks {
     }
 
     private Ewoks() {
-        //toadd
+        ewokList = new ConcurrentLinkedDeque<>();
     }
 
     public static Ewoks getInstance() {
@@ -30,6 +31,18 @@ public class Ewoks {
 
     public void addEwok(Ewok ewok) {
         ewokList.add(ewok);
+    }
+
+    public Ewok getEwok(int serial) throws InterruptedException {
+        for (Ewok ewok : ewokList) {
+            if (ewok.getSerialNumber() == serial) {
+                while (!ewok.isAvailable()) {
+                    wait();
+                }
+                return ewok;
+            }
+        }
+        return null;
     }
 
 

@@ -45,6 +45,9 @@ public class C3POMicroservice extends MicroService {
         this.attack = attack;
         ewoks = Ewoks.getInstance();
         //get ewok(s)
+        for (Integer i : attack.getSerials()) {
+            ewoks.getEwok(i);
+        }
         Thread.sleep(attack.getDuration());
         diary.setC3POFinish(System.currentTimeMillis());
         attack.finished();

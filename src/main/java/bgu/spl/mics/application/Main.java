@@ -4,7 +4,7 @@ import bgu.spl.mics.application.passiveObjects.*;
 import bgu.spl.mics.application.services.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
+
 
 import java.io.*;
 
@@ -23,7 +23,7 @@ public class Main {
 		Thread r2d2 = new Thread(new R2D2Microservice(input.getR2D2()));
 		Thread lando = new Thread(new LandoMicroservice(input.getLando()));
 		Ewoks ewoks = Ewoks.getInstance();
-		Diary diary = Diary.getInstance()
+		Diary diary = Diary.getInstance();
 
 		for (int i = 0; i < num; i++) {
 			ewoks.addEwok(new Ewok(i));
