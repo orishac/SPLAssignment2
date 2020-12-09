@@ -1,7 +1,9 @@
 package bgu.spl.mics;
 
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
@@ -13,7 +15,7 @@ public class MessageBusImpl implements MessageBus {
 	private static class MessageBusHolder {
 		private static MessageBusImpl instance = new MessageBusImpl();
 	}
-	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> hashMap;
+	private ConcurrentHashMap<MicroService, BlockingQueue<Message>> hashMap;
 	private ConcurrentHashMap<Event, Future> futureMap;
 	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedQueue<MicroService>> subscriptionList;
 
@@ -65,8 +67,14 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void register(MicroService m) {
+		BlockingQueue<Message> q = new LinkedBlockingQueue<>();
+		hashMap.put(m, q);
+
+		/*
 		ConcurrentLinkedQueue<Message> q = new ConcurrentLinkedQueue<>();
 		hashMap.put(m, q);
+
+		 */
 	}
 
 	@Override
@@ -76,6 +84,8 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
+		return hashMap.get(m).take();
+		/*
 			while(hashMap.get(m).isEmpty()) {
 				synchronized (this) {
 					try {
@@ -86,5 +96,7 @@ public class MessageBusImpl implements MessageBus {
 				}
 			}
 			return hashMap.get(m).poll();
+
+		 */
 	}
 }

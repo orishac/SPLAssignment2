@@ -20,8 +20,6 @@ import bgu.spl.mics.application.passiveObjects.Diary;
 public class R2D2Microservice extends MicroService {
 
     private Diary diary;
-    private Class<? extends Event> DeactivationEvent;
-    private Class<? extends Broadcast> TerminateBroadcast;
     private DeactivationEvent deactivation;
     private long duration;
 
@@ -34,16 +32,16 @@ public class R2D2Microservice extends MicroService {
     @Override
     protected void initialize() {
         diary = Diary.getInstance();
-        subscribeEvent(deactivation.getClass(), R2D2-> {
-            try {
-                handleDeactivate(deactivation);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        subscribeEvent(DeactivationEvent.class, (DeactivationEvent deactivation)-> {
+            this.deactivation = deactivation;
+            Thread.sleep(duration);
+            complete(deactivation, true);
+            diary.setR2D2Deactivate(System.currentTimeMillis());
+            subscribeBroadcast(TerminateBroadcast.class, (R2D2)->terminate());
         });
         l1countDown();
     }
-
+/*
     private void handleDeactivate(DeactivationEvent deactivation) throws InterruptedException {
         //handle the deactivation event
         this.deactivation = deactivation;
@@ -52,6 +50,8 @@ public class R2D2Microservice extends MicroService {
         diary.setR2D2Deactivate(System.currentTimeMillis());
         subscribeBroadcast(TerminateBroadcast, (R2D2)->terminate());
     }
+
+ */
 
 
 }

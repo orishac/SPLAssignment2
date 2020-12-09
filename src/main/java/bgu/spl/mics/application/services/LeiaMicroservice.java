@@ -12,6 +12,7 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.messages.BombDestroyerEvent;
 import bgu.spl.mics.application.messages.DeactivationEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Attack;
 import bgu.spl.mics.application.passiveObjects.Diary;
 
@@ -29,7 +30,7 @@ public class LeiaMicroservice extends MicroService {
 	private ConcurrentLinkedQueue<AttackEvent> events;
 	private ConcurrentLinkedQueue<Future> attackFutures;
 	private Future deactivateEvent;
-    private Class<? extends Broadcast> TerminateBroadcast;
+
 
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
@@ -60,7 +61,7 @@ public class LeiaMicroservice extends MicroService {
         deactivateEvent = sendEvent(new DeactivationEvent());
         deactivateEvent.get();
         sendEvent(new BombDestroyerEvent());
-        subscribeBroadcast(TerminateBroadcast, (Leia)->terminate());
+        subscribeBroadcast(TerminateBroadcast.class, (Leia)->terminate());
     }
 
     private void writeDiary() {
