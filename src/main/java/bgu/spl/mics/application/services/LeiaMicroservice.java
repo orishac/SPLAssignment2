@@ -27,7 +27,7 @@ public class LeiaMicroservice extends MicroService {
     private Diary diary;
 	private Attack[] attacks;
 	private ConcurrentLinkedQueue<AttackEvent> events;
-	private Future attackFutures[];
+	private ConcurrentLinkedQueue<Future> attackFutures;
 	private Future deactivateEvent;
     private Class<? extends Broadcast> TerminateBroadcast;
 
@@ -40,7 +40,7 @@ public class LeiaMicroservice extends MicroService {
     protected void initialize()  {
         diary = Diary.getInstance();
         events = new ConcurrentLinkedQueue();
-        attackFutures = new Future[attacks.length];
+        attackFutures = new ConcurrentLinkedQueue();
     	for (int i=0; i<attacks.length; i++) {
     	    AttackEvent event = new AttackEvent(attacks[i]);
     	    events.add(event);
@@ -50,10 +50,9 @@ public class LeiaMicroservice extends MicroService {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        for (int i=0; i<events.size(); i++) {
-            Future toAdd = new Future<>();
-            toAdd = sendEvent(events.poll());
-            attackFutures[i] = toAdd;
+        while (!events.isEmpty()) {
+            Future toAdd = sendEvent(events.poll());
+            attackFutures.add(toAdd);
         }
         for (Future event : attackFutures) {
             event.get();

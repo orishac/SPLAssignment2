@@ -5,6 +5,7 @@ import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
@@ -19,30 +20,39 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
 public class HanSoloMicroservice extends MicroService {
 
     private Diary diary;
-    private Class<? extends Event> attackEvent;
-    private Class<? extends Broadcast> TerminateBroadcast;
+    private TerminateBroadcast terminateBroadcast;
     private Ewoks ewoks;
-    private AttackEvent attack;
+
 
     public HanSoloMicroservice() {
         super("Han");
-        attack = new AttackEvent();
+        diary = Diary.getInstance();
+        terminateBroadcast = new TerminateBroadcast();
+        ewoks = Ewoks.getInstance();
     }
 
 
     @Override
     protected void initialize() {
-        diary = Diary.getInstance();
-        subscribeEvent(attack.getClass(), (Han)-> {
+        subscribeBroadcast(terminateBroadcast.getClass(), (Han)->terminate());
+        subscribeEvent(AttackEvent.class, (AttackEvent attackEvent)-> {
+            ewoks.acquire(attackEvent.getSerials());
+            long duration = attackEvent.getDuration();
             try {
-                handleAttack(attack);
+                Thread.sleep(duration);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            for (Integer ewok : attackEvent.getSerials()) {
+                ewoks.release(ewok);
+            }
+            diary.setTotalAttacks();
+            complete(attackEvent, true);
+            notifyAll();
         });
         l1countDown();
     }
-
+    /*
     private void handleAttack(AttackEvent attack) throws InterruptedException {
         //handle attack
         this.attack = attack;
@@ -55,8 +65,9 @@ public class HanSoloMicroservice extends MicroService {
         diary.setHanSoloFinish(System.currentTimeMillis());
         attack.finished();
         complete(attack, true);
-        subscribeBroadcast(TerminateBroadcast, (Han)->terminate());
+
     }
+     */
 
     private void writeDiary() {
         diary.setHanSoloTerminate(System.currentTimeMillis());

@@ -4,6 +4,7 @@ import bgu.spl.mics.Broadcast;
 import bgu.spl.mics.Event;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.AttackEvent;
+import bgu.spl.mics.application.messages.TerminateBroadcast;
 import bgu.spl.mics.application.passiveObjects.Diary;
 import bgu.spl.mics.application.passiveObjects.Ewoks;
 
@@ -19,29 +20,39 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
 public class C3POMicroservice extends MicroService {
 
     private Diary diary;
-    private Class<? extends Event> AttackEvent;
-    private Class<? extends Broadcast> TerminateBroadcast;
+    private TerminateBroadcast terminateBroadcast;
     private Ewoks ewoks;
-    private AttackEvent attack;
+    private AttackEvent attackEvent;
 
     public C3POMicroservice() {
         super("C3PO");
-        attack = new AttackEvent();
+        attackEvent = new AttackEvent();
+        diary = Diary.getInstance();
+        terminateBroadcast = new TerminateBroadcast();
+        ewoks = Ewoks.getInstance();
     }
 
     @Override
     protected void initialize() {
-        diary = Diary.getInstance();
-        subscribeEvent(attack.getClass(), (C3PO)-> {
+        subscribeBroadcast(terminateBroadcast.getClass(), (C3PO)->terminate());
+        subscribeEvent(AttackEvent.class, (AttackEvent attackEvent)-> {
+            ewoks.acquire(attackEvent.getSerials());
+            long duration = attackEvent.getDuration();
             try {
-                handleAttack(attack);
+                Thread.sleep(duration);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        });
+            for (Integer ewok : attackEvent.getSerials()) {
+                ewoks.release(ewok);
+            }
+            diary.setTotalAttacks();
+            notifyAll();
+                });
         l1countDown();
     }
 
+    /*
     private void handleAttack(AttackEvent attack) throws InterruptedException {
         //attack handling
         this.attack = attack;
@@ -56,6 +67,8 @@ public class C3POMicroservice extends MicroService {
         complete(attack, true);
         subscribeBroadcast(TerminateBroadcast, (C3PO)->terminate());
     }
+
+     */
 
     private void writeDiary() {
         diary.setC3POTerminate(System.currentTimeMillis());

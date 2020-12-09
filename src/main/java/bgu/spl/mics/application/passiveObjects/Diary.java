@@ -34,8 +34,8 @@ public class Diary {
         return Diary.DiaryHolder.instance;
     }
 
-    public void setTotalAttacks(AtomicInteger totalAttacks) {
-        this.totalAttacks = totalAttacks;
+    public void setTotalAttacks() {
+        totalAttacks.incrementAndGet();
     }
 
     public void setHanSoloFinish(long HanSoloFinish) {

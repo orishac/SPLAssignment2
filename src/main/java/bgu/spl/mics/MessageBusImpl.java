@@ -1,7 +1,6 @@
 package bgu.spl.mics;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -16,7 +15,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 	private ConcurrentHashMap<MicroService, ConcurrentLinkedQueue<Message>> hashMap;
 	private ConcurrentHashMap<Event, Future> futureMap;
-	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedQueue> subscriptionList;
+	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedQueue<MicroService>> subscriptionList;
 
 	private MessageBusImpl(){
 		hashMap = new ConcurrentHashMap<>();
@@ -56,7 +55,9 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		hashMap.get(subscriptionList.get(e.getClass()).poll()).add(e);
+		MicroService m = subscriptionList.get(e.getClass()).poll();
+		subscriptionList.get(e.getClass()).add(m);
+		hashMap.get(m).add(e);
 		Future<T> future = new Future<>();
 		futureMap.put(e, future);
 		return future;
