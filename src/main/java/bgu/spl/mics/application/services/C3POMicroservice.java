@@ -47,8 +47,8 @@ public class C3POMicroservice extends MicroService {
                 ewoks.release(ewok);
             }
             diary.setTotalAttacks();
-            notifyAll();
-                });
+            complete(attackEvent, true);
+        });
         l1countDown();
     }
 

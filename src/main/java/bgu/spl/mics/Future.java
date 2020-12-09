@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -29,25 +30,23 @@ public class Future<T> {
      * @return return the result of type T if it is available, if not wait until it is available.
      * 	       
      */
-	public T get() {
-		synchronized (this) {
-			while(!isDone)
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-		}
+	public synchronized T get() {
+		while (!isDone)
+			try {
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		return result;
 	}
 	
 	/**
      * Resolves the result of this Future object.
      */
-	public void resolve (T result) {
+	public synchronized void resolve (T result) {
 		this.result = result;
 		isDone = true;
-		notifyAll();
+		this.notifyAll();
 	}
 	
 	/**
@@ -72,7 +71,7 @@ public class Future<T> {
 		synchronized (this) {
 			if (!isDone)
 				try {
-					this.wait(timeout, (int) unit.toNanos(timeout));
+					unit.timedWait(this, timeout);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}

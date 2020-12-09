@@ -27,7 +27,16 @@ public class Diary {
     }
 
     private Diary() {
-
+        totalAttacks = new AtomicInteger();
+        totalAttacks.set(0);
+        HanSoloFinish = 0;
+        C3POFinish = 0;
+        R2D2Deactivate = 0;
+        LeiaTerminate = 0;
+        HanSoloTerminate = 0;
+        C3POTerminate = 0;
+        R2D2Terminate = 0;
+        LandoTerminate = 0;
     }
 
     public static Diary getInstance() {

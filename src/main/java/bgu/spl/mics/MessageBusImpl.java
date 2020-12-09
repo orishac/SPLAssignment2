@@ -30,13 +30,13 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		subscriptionList.put(type, new ConcurrentLinkedQueue());
+		subscriptionList.putIfAbsent(type, new ConcurrentLinkedQueue());
 		subscriptionList.get(type).add(m);
 	}
 
 	@Override
 	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
-		subscriptionList.put(type, new ConcurrentLinkedQueue());
+		subscriptionList.putIfAbsent(type, new ConcurrentLinkedQueue());
 		subscriptionList.get(type).add(m);
 	}
 

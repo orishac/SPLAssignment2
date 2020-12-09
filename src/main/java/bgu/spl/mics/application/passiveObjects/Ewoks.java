@@ -16,21 +16,29 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class Ewoks {
 
-    private ConcurrentLinkedDeque<Ewok> ewokList;
+    private ConcurrentLinkedQueue<Ewok> ewokList;
 
 
-    public void release(int ewok) {
+    public synchronized void release(int ewok) {
         for (Ewok e : ewokList)
             if (e.getSerialNumber()==ewok) {
                 e.release();
             }
+        this.notifyAll();
     }
 
-    public void acquire(List<Integer> serials) {
+    public synchronized void acquire(List<Integer> serials) {
         sortList(serials);
         for (Integer serial : serials) {
             for (Ewok ewok : ewokList) {
                 if (ewok.getSerialNumber() == serial) {
+                    while (!ewok.isAvailable()) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     ewok.acquire();
                 }
             }
@@ -40,13 +48,13 @@ public class Ewoks {
     private void sortList(List<Integer> serials) {
         int i=1;
         while (i<serials.size()) {
-            int j=i;
-            while (j>0 & serials.get(j-1) > serials.get(j)) {
-                int temp = serials.get(j);
-                serials.set(j, serials.get(j - 1));
-                serials.set(j - 1, temp);
+            int x = serials.get(i);
+            int j= i -1;
+            while (j >= 0 && serials.get(j) > x) {
+                serials.set(j + 1, serials.get(j));
                 j = j - 1;
             }
+            serials.set(j+1, x);
             i=i+1;
         }
     }
@@ -57,7 +65,7 @@ public class Ewoks {
     }
 
     private Ewoks() {
-        ewokList = new ConcurrentLinkedDeque<>();
+        ewokList = new ConcurrentLinkedQueue<>();
     }
 
     public static Ewoks getInstance() {

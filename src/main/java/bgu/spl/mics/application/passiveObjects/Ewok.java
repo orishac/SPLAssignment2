@@ -12,6 +12,7 @@ public class Ewok {
 
 	public Ewok(int serial) {
 	    serialNumber = serial;
+	    available = true;
     }
 	
   
@@ -19,15 +20,19 @@ public class Ewok {
      * Acquires an Ewok
      */
     public void acquire() {
-        available = false;
+        synchronized (this) {
+            available = false;
+        }
     }
 
     /**
      * release an Ewok
      */
     public void release() {
-    	available = true;
-    	notifyAll();
+        synchronized (this) {
+            available = true;
+            notifyAll();
+        }
     }
 
     public int getSerialNumber() {

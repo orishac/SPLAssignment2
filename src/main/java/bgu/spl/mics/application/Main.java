@@ -29,7 +29,7 @@ public class Main {
 		Diary diary = Diary.getInstance();
 
 		for (int i = 0; i < num; i++) {
-			ewoks.addEwok(new Ewok(i));
+			ewoks.addEwok(new Ewok(i+1));
 		}
 
 		leia.start();

@@ -48,7 +48,6 @@ public class HanSoloMicroservice extends MicroService {
             }
             diary.setTotalAttacks();
             complete(attackEvent, true);
-            notifyAll();
         });
         l1countDown();
     }
