@@ -20,7 +20,6 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
 public class C3POMicroservice extends MicroService {
 
     private Diary diary;
-    private TerminateBroadcast terminateBroadcast;
     private Ewoks ewoks;
     private AttackEvent attackEvent;
 
@@ -28,13 +27,12 @@ public class C3POMicroservice extends MicroService {
         super("C3PO");
         attackEvent = new AttackEvent();
         diary = Diary.getInstance();
-        terminateBroadcast = new TerminateBroadcast();
         ewoks = Ewoks.getInstance();
     }
 
     @Override
     protected void initialize() {
-        subscribeBroadcast(terminateBroadcast.getClass(), (C3PO)->terminate());
+        subscribeBroadcast(TerminateBroadcast.class, (C3PO)->terminate());
         subscribeEvent(AttackEvent.class, (AttackEvent attackEvent)-> {
             ewoks.acquire(attackEvent.getSerials());
             long duration = attackEvent.getDuration();
@@ -47,6 +45,7 @@ public class C3POMicroservice extends MicroService {
                 ewoks.release(ewok);
             }
             diary.setTotalAttacks();
+            diary.setC3POFinish(System.currentTimeMillis());
             complete(attackEvent, true);
         });
         l1countDown();

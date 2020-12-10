@@ -43,6 +43,7 @@ public abstract class MicroService implements Runnable {
     	callbackMap = new ConcurrentHashMap<>();
     	latch1 = new CountDownLatch(4);
         latch2 = new CountDownLatch(2);
+        diary = Diary.getInstance();
     }
 
     public void l1await() throws InterruptedException {
@@ -167,6 +168,21 @@ public abstract class MicroService implements Runnable {
     }
 
     private void writeDiary() {
+        if (this.name == "Leia") {
+            diary.setLeiaTerminate(System.currentTimeMillis());
+        }
+        if (this.name == "Han") {
+            diary.setHanSoloTerminate(System.currentTimeMillis());
+        }
+        if (this.name == "C3PO") {
+            diary.setC3POTerminate(System.currentTimeMillis());
+        }
+        if (this.name == "Lando") {
+            diary.setLandoTerminate(System.currentTimeMillis());
+        }
+        if (this.name == "R2D2") {
+            diary.setR2D2Terminate(System.currentTimeMillis());
+        }
 
     }
 

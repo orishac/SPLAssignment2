@@ -20,13 +20,14 @@ public class Main {
 		Input input = jsonReader();
 		Attack[] attack = input.getAttacks();
 		int num = input.getEwoks();
+		Diary diary = Diary.getInstance();
 		Thread leia = new Thread(new LeiaMicroservice(attack));
 		Thread hanSolo = new Thread(new HanSoloMicroservice());
 		Thread c3po = new Thread(new C3POMicroservice());
 		Thread r2d2 = new Thread(new R2D2Microservice(input.getR2D2()));
 		Thread lando = new Thread(new LandoMicroservice(input.getLando()));
 		Ewoks ewoks = Ewoks.getInstance();
-		Diary diary = Diary.getInstance();
+
 
 		for (int i = 0; i < num; i++) {
 			ewoks.addEwok(new Ewok(i+1));
@@ -37,6 +38,16 @@ public class Main {
 		c3po.start();
 		r2d2.start();
 		lando.start();
+
+		try {
+			leia.join();
+			hanSolo.join();
+			c3po.join();
+			r2d2.join();
+			lando.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		try {
 			String output = "output.json";

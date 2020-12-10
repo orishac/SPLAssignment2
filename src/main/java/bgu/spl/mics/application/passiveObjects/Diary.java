@@ -40,7 +40,7 @@ public class Diary {
     }
 
     public static Diary getInstance() {
-        return Diary.DiaryHolder.instance;
+        return DiaryHolder.instance;
     }
 
     public void setTotalAttacks() {

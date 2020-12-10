@@ -50,7 +50,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		while (!subscriptionList.get(b.getClass()).isEmpty()) {
-			hashMap.get(subscriptionList.get(b).poll()).add(b);
+			hashMap.get(subscriptionList.get(b.getClass()).poll()).add(b);
 		}
 	}
 

@@ -35,11 +35,12 @@ public class LeiaMicroservice extends MicroService {
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
 		this.attacks = attacks;
+        diary = Diary.getInstance();
     }
 
     @Override
     protected void initialize()  {
-        diary = Diary.getInstance();
+        subscribeBroadcast(TerminateBroadcast.class, (Leia)->terminate());
         events = new ConcurrentLinkedQueue();
         attackFutures = new ConcurrentLinkedQueue();
     	for (int i=0; i<attacks.length; i++) {
@@ -61,7 +62,7 @@ public class LeiaMicroservice extends MicroService {
         deactivateEvent = sendEvent(new DeactivationEvent());
         deactivateEvent.get();
         sendEvent(new BombDestroyerEvent());
-        subscribeBroadcast(TerminateBroadcast.class, (Leia)->terminate());
+
     }
 
     private void writeDiary() {

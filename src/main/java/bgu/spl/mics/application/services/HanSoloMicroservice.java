@@ -20,21 +20,19 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
 public class HanSoloMicroservice extends MicroService {
 
     private Diary diary;
-    private TerminateBroadcast terminateBroadcast;
     private Ewoks ewoks;
 
 
     public HanSoloMicroservice() {
         super("Han");
         diary = Diary.getInstance();
-        terminateBroadcast = new TerminateBroadcast();
         ewoks = Ewoks.getInstance();
     }
 
 
     @Override
     protected void initialize() {
-        subscribeBroadcast(terminateBroadcast.getClass(), (Han)->terminate());
+        subscribeBroadcast(TerminateBroadcast.class, (Han)->terminate());
         subscribeEvent(AttackEvent.class, (AttackEvent attackEvent)-> {
             ewoks.acquire(attackEvent.getSerials());
             long duration = attackEvent.getDuration();
@@ -47,6 +45,7 @@ public class HanSoloMicroservice extends MicroService {
                 ewoks.release(ewok);
             }
             diary.setTotalAttacks();
+            diary.setHanSoloFinish(System.currentTimeMillis());
             complete(attackEvent, true);
         });
         l1countDown();
