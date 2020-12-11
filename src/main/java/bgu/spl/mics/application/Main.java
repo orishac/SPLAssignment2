@@ -17,59 +17,68 @@ import java.nio.file.Paths;
  */
 public class Main {
 	public static void main(String[] args) {
-		Input input = jsonReader();
-		Attack[] attack = input.getAttacks();
-		int num = input.getEwoks();
-		Diary diary = Diary.getInstance();
-		Thread leia = new Thread(new LeiaMicroservice(attack));
-		Thread hanSolo = new Thread(new HanSoloMicroservice());
-		Thread c3po = new Thread(new C3POMicroservice());
-		Thread r2d2 = new Thread(new R2D2Microservice(input.getR2D2()));
-		Thread lando = new Thread(new LandoMicroservice(input.getLando()));
-		Ewoks ewoks = Ewoks.getInstance();
-
-
-		for (int i = 0; i < num; i++) {
-			ewoks.addEwok(new Ewok(i+1));
-		}
-
-		leia.start();
-		hanSolo.start();
-		c3po.start();
-		r2d2.start();
-		lando.start();
-
 		try {
-			leia.join();
-			hanSolo.join();
-			c3po.join();
-			r2d2.join();
-			lando.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+			Input json = JsonInputReader.getInputFromJson("/home/spl211/IdeaProjects/Assignment2/input.json");
+			Diary diary = Diary.getInstance();
+			Ewoks ewoks = Ewoks.getInstance();
+			int numOfEwoks = json.getEwoks();
+			Attack[] attack = json.getAttacks();
+			for (int i = 0; i < numOfEwoks; i++) {
+				ewoks.addEwok(new Ewok(i+1));
+			}
 
-		try {
-			String output = "output.json";
-			Gson gson = new GsonBuilder().setPrettyPrinting().create();
-			FileWriter writer = new FileWriter(output);
-			gson.toJson(diary, writer);
-			writer.flush();
-			writer.close();
+			Thread leia = new Thread(new LeiaMicroservice(attack));
+			Thread hanSolo = new Thread(new HanSoloMicroservice());
+			Thread c3po = new Thread(new C3POMicroservice());
+			Thread r2d2 = new Thread(new R2D2Microservice(json.getR2D2()));
+			Thread lando = new Thread(new LandoMicroservice(json.getLando()));
 
 
+
+			leia.start();
+			hanSolo.start();
+			c3po.start();
+			r2d2.start();
+			lando.start();
+
+
+			try {
+				leia.join();
+				hanSolo.join();
+				c3po.join();
+				r2d2.join();
+				lando.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			try {
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				FileWriter writer = new FileWriter("/home/spl211/IdeaProjects/Assignment2/output.json");
+				gson.toJson(diary, writer);
+				writer.flush();
+				writer.close();
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-	}
 
+
+
+
+
+
+	}
+/*
 	private static Input jsonReader() {
 		try {
 			Gson gson = new Gson();
 			Reader reader = Files.newBufferedReader(Paths.get("input.json"));
 			Input input = gson.fromJson(reader, Input.class);
-			System.out.println(input);
 			reader.close();
 			return input;
 		}
@@ -78,4 +87,6 @@ public class Main {
 		}
 		return null;
 	}
+
+ */
 }

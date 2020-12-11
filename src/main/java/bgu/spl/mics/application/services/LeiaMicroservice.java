@@ -62,12 +62,6 @@ public class LeiaMicroservice extends MicroService {
         deactivateEvent = sendEvent(new DeactivationEvent());
         deactivateEvent.get();
         sendEvent(new BombDestroyerEvent());
-
     }
-
-    private void writeDiary() {
-        diary.setLeiaTerminate(System.currentTimeMillis());
-    }
-
 
 }
