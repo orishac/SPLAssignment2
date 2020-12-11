@@ -15,7 +15,7 @@ public class MessageBusImpl implements MessageBus {
 	private static class MessageBusHolder {
 		private static MessageBusImpl instance = new MessageBusImpl();
 	}
-	private ConcurrentHashMap<MicroService, BlockingQueue<Message>> hashMap;
+	private ConcurrentHashMap<String, BlockingQueue<Message>> hashMap;
 	private ConcurrentHashMap<Event, Future> futureMap;
 	private ConcurrentHashMap<Class<? extends Message>,ConcurrentLinkedQueue<MicroService>> subscriptionList;
 
@@ -45,21 +45,29 @@ public class MessageBusImpl implements MessageBus {
 	@Override @SuppressWarnings("unchecked")
 	public <T> void complete(Event<T> e, T result) {
 		futureMap.get(e).resolve(result);
+		futureMap.remove(e);
 	}
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		while (!subscriptionList.get(b.getClass()).isEmpty()) {
-			hashMap.get(subscriptionList.get(b.getClass()).poll()).add(b);
+			hashMap.get(subscriptionList.get(b.getClass()).poll().getName()).add(b);
 		}
 	}
 
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		MicroService m = subscriptionList.get(e.getClass()).poll();
-		subscriptionList.get(e.getClass()).add(m);
-		hashMap.get(m).add(e);
+		MicroService m = null;
+		String s = null;
+		if (subscriptionList.containsKey(e.getClass())) {
+			m = subscriptionList.get(e.getClass()).poll();
+			subscriptionList.get(e.getClass()).add(m);
+			if (m.getName() != null)
+				s = m.getName();
+			if (hashMap.containsKey(s))
+				hashMap.get(s).add(e);
+		}
 		Future<T> future = new Future<>();
 		futureMap.put(e, future);
 		return future;
@@ -68,35 +76,16 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void register(MicroService m) {
 		BlockingQueue<Message> q = new LinkedBlockingQueue<>();
-		hashMap.put(m, q);
-
-		/*
-		ConcurrentLinkedQueue<Message> q = new ConcurrentLinkedQueue<>();
-		hashMap.put(m, q);
-
-		 */
+		hashMap.put(m.getName(), q);
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		hashMap.remove(m);
+		hashMap.remove(m.getName());
 	}
 
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
-		return hashMap.get(m).take();
-		/*
-			while(hashMap.get(m).isEmpty()) {
-				synchronized (this) {
-					try {
-						this.wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-			return hashMap.get(m).poll();
-
-		 */
+		return hashMap.get(m.getName()).take();
 	}
 }

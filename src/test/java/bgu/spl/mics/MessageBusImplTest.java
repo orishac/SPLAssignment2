@@ -2,6 +2,9 @@ package bgu.spl.mics;
 
 import bgu.spl.mics.application.messages.AttackEvent;
 import bgu.spl.mics.application.passiveObjects.Attack;
+import bgu.spl.mics.application.services.C3POMicroservice;
+import bgu.spl.mics.application.services.HanSoloMicroservice;
+import bgu.spl.mics.application.services.LeiaMicroservice;
 import bgu.spl.mics.application.services.testMicroservice;
 import bgu.spl.mics.example.messages.ExampleBroadcast;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,50 +15,67 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MessageBusImplTest {
 
+    // We made a few changes in those tests compared to the tests that we submitted.
     private MessageBusImpl testBus;
-    private testMicroservice m1;
-    private testMicroservice m2;
+    private MicroService Han;
+    private MicroService C3PO;
 
     @BeforeEach
     void setUp() {
-
-        m1 = new testMicroservice("m1");
-        m2 = new testMicroservice("m2");
+        Han = new HanSoloMicroservice();
+        C3PO = new C3POMicroservice();
+        testBus = MessageBusImpl.getInstance();
     }
 
     @Test
     void complete() {
-        Future<AttackEvent> f = new Future<>();
+        Han.subscribeEvent(AttackEvent.class, (callback)->{});
         AttackEvent e1 = new AttackEvent();
-        testBus.complete(e1, true);
+        Future f = C3PO.sendEvent(e1);
+        Han.complete(e1, true);
         assertTrue(f.isDone());
     }
 
     @Test
     void sendBroadcast() {
         ExampleBroadcast e1 = new ExampleBroadcast("Hi");
-        m2.subscribeBroadcast(ExampleBroadcast.class, (callback)->{});
-        m1.sendBroadcast(e1);
-        ExampleBroadcast e2 = (ExampleBroadcast) m2.awaitMessage();
-        assertEquals(e1, e2);
-
+        testBus.register(Han);
+        Han.subscribeBroadcast(ExampleBroadcast.class, (callback)->{});
+        C3PO.sendBroadcast(e1);
+        try{
+            ExampleBroadcast e2 = (ExampleBroadcast) testBus.awaitMessage(Han);
+            assertEquals(e1, e2);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void sendEvent() {
         AttackEvent e1 = new AttackEvent();
-        m2.subscribeEvent(AttackEvent.class, (callback)->{});
-        m1.sendEvent(e1);
-        AttackEvent e2 = (AttackEvent) m2.awaitMessage();
-        assertEquals(e1,e2);
+        testBus.register(Han);
+        testBus.register(C3PO);
+        Han.subscribeEvent(AttackEvent.class, (callback)->{});
+        C3PO.sendEvent(e1);
+        try{
+            Message e2 = testBus.awaitMessage(Han);
+            assertEquals(e1,e2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void awaitMessage() {
-        testBus.register(m1);
+        testBus.register(Han);
         AttackEvent e1 = new AttackEvent();
-        m1.subscribeEvent(AttackEvent.class, (callback)->{});
+        Han.subscribeEvent(AttackEvent.class, (callback)->{});
         testBus.sendEvent(e1);
-        assertEquals(e1, m1.awaitMessage());
+        try{
+            assertEquals(e1, testBus.awaitMessage(Han)); }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

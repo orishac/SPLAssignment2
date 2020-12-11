@@ -31,7 +31,6 @@ public abstract class MicroService implements Runnable {
     private boolean terminate;
     private Diary diary;
     private static CountDownLatch latch1;
-    private static CountDownLatch latch2;
 
 
     /**
@@ -41,25 +40,9 @@ public abstract class MicroService implements Runnable {
     public MicroService(String name) {
     	this.name = name;
     	callbackMap = new ConcurrentHashMap<>();
-    	latch1 = new CountDownLatch(4);
-        latch2 = new CountDownLatch(5);
+    	latch1 = new CountDownLatch(5);
         diary = Diary.getInstance();
-    }
-
-    public void l1await() throws InterruptedException {
-        latch1.await();
-    }
-
-    public void l1countDown()  {
-        latch1.countDown();
-    }
-
-    public void l2await() throws InterruptedException {
-        latch2.await();
-    }
-
-    public void l2countDown()  {
-        latch2.countDown();
+        bus = MessageBusImpl.getInstance();
     }
 
     /**
@@ -169,45 +152,45 @@ public abstract class MicroService implements Runnable {
 
     private void writeDiary() {
         if (this.name == "Leia") {
-            latch2.countDown();
+            latch1.countDown();
             try {
-                latch2.await();
+                latch1.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             diary.setLeiaTerminate(System.currentTimeMillis());
         }
         if (this.name == "Han") {
-            latch2.countDown();
+            latch1.countDown();
             try {
-                latch2.await();
+                latch1.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             diary.setHanSoloTerminate(System.currentTimeMillis());
         }
         if (this.name == "C3PO") {
-            latch2.countDown();
+            latch1.countDown();
             try {
-                latch2.await();
+                latch1.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             diary.setC3POTerminate(System.currentTimeMillis());
         }
         if (this.name == "Lando") {
-            latch2.countDown();
+            latch1.countDown();
             try {
-                latch2.await();
+                latch1.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             diary.setLandoTerminate(System.currentTimeMillis());
         }
         if (this.name == "R2D2") {
-            latch2.countDown();
+            latch1.countDown();
             try {
-                latch2.await();
+                latch1.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -221,6 +204,8 @@ public abstract class MicroService implements Runnable {
      *         construction time and is used mainly for debugging purposes.
      */
     public final String getName() {
+        if (name != null)
+            return name;
         return null;
     }
 

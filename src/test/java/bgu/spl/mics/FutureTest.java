@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class FutureTest {
 
+    // We made a few changes in those tests compared to the tests that we submitted.
     private Future<String> future;
 
     @BeforeEach

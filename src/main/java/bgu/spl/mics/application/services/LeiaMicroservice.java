@@ -25,7 +25,7 @@ import bgu.spl.mics.application.passiveObjects.Diary;
  * You MAY change constructor signatures and even add new public constructors.
  */
 public class LeiaMicroservice extends MicroService {
-    private Diary diary;
+    private Diary diary = Diary.getInstance();
 	private Attack[] attacks;
 	private ConcurrentLinkedQueue<AttackEvent> events;
 	private ConcurrentLinkedQueue<Future> attackFutures;
@@ -35,7 +35,6 @@ public class LeiaMicroservice extends MicroService {
     public LeiaMicroservice(Attack[] attacks) {
         super("Leia");
 		this.attacks = attacks;
-        diary = Diary.getInstance();
     }
 
     @Override
@@ -48,7 +47,7 @@ public class LeiaMicroservice extends MicroService {
     	    events.add(event);
         }
     	try {
-            l1await();
+            Thread.sleep(200);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

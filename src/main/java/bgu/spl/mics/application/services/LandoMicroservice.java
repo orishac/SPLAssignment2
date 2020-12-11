@@ -14,13 +14,12 @@ import bgu.spl.mics.application.passiveObjects.Diary;
  */
 public class LandoMicroservice  extends MicroService {
 
-    private Diary diary;
+    private Diary diary = Diary.getInstance();;
     private long duration;
 
     public LandoMicroservice(long duration) {
         super("Lando");
         this.duration = duration;
-        diary = Diary.getInstance();
     }
 
     @Override
@@ -32,24 +31,6 @@ public class LandoMicroservice  extends MicroService {
             complete(bomb, true);
             sendBroadcast(new TerminateBroadcast());
        });
-        l1countDown();
     }
-
-    /*
-    private void handleBombDestroyer(BombDestroyerEvent bomb) throws InterruptedException {
-        //handle the bomb destroyer event
-        this.bomb = bomb;
-        Thread.sleep(duration);
-        //write to diary
-
-        sendBroadcast(new TerminateBroadcast());
-    }
-
-     */
-
-    private void writeDiary() {
-        diary.setLandoTerminate(System.currentTimeMillis());
-    }
-
 
 }

@@ -19,15 +19,12 @@ import bgu.spl.mics.application.passiveObjects.Ewoks;
  */
 public class C3POMicroservice extends MicroService {
 
-    private Diary diary;
-    private Ewoks ewoks;
+    private Diary diary = Diary.getInstance();
+    private Ewoks ewoks = Ewoks.getInstance();
     private AttackEvent attackEvent;
 
     public C3POMicroservice() {
         super("C3PO");
-        attackEvent = new AttackEvent();
-        diary = Diary.getInstance();
-        ewoks = Ewoks.getInstance();
     }
 
     @Override
@@ -48,31 +45,6 @@ public class C3POMicroservice extends MicroService {
             diary.setC3POFinish(System.currentTimeMillis());
             complete(attackEvent, true);
         });
-        l1countDown();
     }
-
-    /*
-    private void handleAttack(AttackEvent attack) throws InterruptedException {
-        //attack handling
-        this.attack = attack;
-        ewoks = Ewoks.getInstance();
-        //get ewok(s)
-        for (Integer i : attack.getSerials()) {
-            ewoks.getEwok(i);
-        }
-        Thread.sleep(attack.getDuration());
-        diary.setC3POFinish(System.currentTimeMillis());
-        attack.finished();
-        complete(attack, true);
-        subscribeBroadcast(TerminateBroadcast, (C3PO)->terminate());
-    }
-
-     */
-
-    private void writeDiary() {
-        diary.setC3POTerminate(System.currentTimeMillis());
-    }
-
-
 
 }

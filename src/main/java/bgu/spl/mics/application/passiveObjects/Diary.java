@@ -79,4 +79,41 @@ public class Diary {
         this.LandoTerminate = LandoTerminate;
     }
 
+    public AtomicInteger getNumberOfAttacks() {
+        return totalAttacks;
+    }
+
+    public long getC3POFinish() {
+        return C3POFinish;
+    }
+
+    public long getHanSoloFinish() {
+        return HanSoloFinish;
+    }
+
+    public long getR2D2Deactivate() {
+        return R2D2Deactivate;
+    }
+
+    public long getHanSoloTerminate() {
+        return HanSoloTerminate;
+    }
+
+    public long getC3POTerminate() {
+        return C3POTerminate;
+    }
+
+    public long getLandoTerminate() {
+        return LandoTerminate;
+    }
+
+    public long getR2D2Terminate() {
+        return R2D2Terminate;
+    }
+
+    public void resetNumberAttacks() {
+        totalAttacks.set(0);
+    }
+
+
 }
