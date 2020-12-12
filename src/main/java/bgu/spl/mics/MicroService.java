@@ -239,6 +239,7 @@ public abstract class MicroService implements Runnable {
             }
         }
     	bus.unregister(this);
+        callbackMap.clear();
     	return;
     }
 

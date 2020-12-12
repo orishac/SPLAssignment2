@@ -18,7 +18,8 @@ import java.nio.file.Paths;
 public class Main {
 	public static void main(String[] args) {
 		try {
-			Input json = JsonInputReader.getInputFromJson("/home/spl211/IdeaProjects/SPLAssignment2/input.json");
+			//Input json = JsonInputReader.getInputFromJson("/home/spl211/IdeaProjects/Assignment2/input.json");
+			Input json = JsonInputReader.getInputFromJson(args[0]);
 			Diary diary = Diary.getInstance();
 			Ewoks ewoks = Ewoks.getInstance();
 			int numOfEwoks = json.getEwoks();
@@ -54,7 +55,8 @@ public class Main {
 
 			try {
 				Gson gson = new GsonBuilder().setPrettyPrinting().create();
-				FileWriter writer = new FileWriter("/home/spl211/IdeaProjects/SPLAssignment2/output.json");
+				//FileWriter writer = new FileWriter("/home/spl211/IdeaProjects/Assignment2/output.json");
+				FileWriter writer = new FileWriter(args[1]);
 				gson.toJson(diary, writer);
 				writer.flush();
 				writer.close();
