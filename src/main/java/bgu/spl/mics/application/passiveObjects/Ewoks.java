@@ -18,6 +18,22 @@ public class Ewoks {
 
     private ConcurrentLinkedQueue<Ewok> ewokList;
 
+    private static class EwoksHolder {
+        private static Ewoks instance = new Ewoks();
+    }
+
+    private Ewoks() {
+        ewokList = new ConcurrentLinkedQueue<>();
+    }
+
+    public static Ewoks getInstance() {
+        return EwoksHolder.instance;
+    }
+
+    /**
+     * notify the Ewok that it was used and now avaible for another Microservice to take
+     * @param ewok - an integer representing a specific ewok to be released
+     */
 
     public synchronized void release(int ewok) {
         for (Ewok e : ewokList)
@@ -26,6 +42,12 @@ public class Ewoks {
             }
         this.notifyAll();
     }
+
+    /**
+     * calls the sortList method to sort the list of Integer representing the Ewoks
+     * for each Ewok in the Ewoks list, try to aquire it, and awaits if the Ewok in not available
+     * @param serials - list of Integer representing the Ewoks
+     */
 
     public synchronized void acquire(List<Integer> serials) {
         sortList(serials);
@@ -45,6 +67,10 @@ public class Ewoks {
         }
     }
 
+    /**
+     * sorts the list of the Integers representing the Ewoks
+     * @param serials - list of Integer representing the Ewoks
+     */
     private void sortList(List<Integer> serials) {
         int i=1;
         while (i<serials.size()) {
@@ -60,17 +86,10 @@ public class Ewoks {
     }
 
 
-    private static class EwoksHolder {
-        private static Ewoks instance = new Ewoks();
-    }
-
-    private Ewoks() {
-        ewokList = new ConcurrentLinkedQueue<>();
-    }
-
-    public static Ewoks getInstance() {
-        return EwoksHolder.instance;
-    }
+    /**
+     * adds a given Ewok to the list of ewoks
+     * @param ewok - an Ewok to add
+     */
 
     public void addEwok(Ewok ewok) {
         ewokList.add(ewok);

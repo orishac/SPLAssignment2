@@ -1,13 +1,6 @@
 package bgu.spl.mics;
 
-import bgu.spl.mics.application.messages.AttackEvent;
-import bgu.spl.mics.application.messages.BombDestroyerEvent;
-import bgu.spl.mics.application.messages.DeactivationEvent;
-import bgu.spl.mics.application.messages.TerminateBroadcast;
-import bgu.spl.mics.application.passiveObjects.Attack;
 
-import java.util.AbstractQueue;
-import java.util.Collections;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -88,24 +81,27 @@ public class MessageBusImpl implements MessageBus {
 
 
 	@Override
-	public  void register(MicroService m) {
+	public void register(MicroService m) {
 		BlockingQueue<Message> q = new LinkedBlockingQueue<>();
-		hashMap.put(m.getName(), q);
-	}
-
-	@Override
-	public synchronized void unregister(MicroService m) {
-		hashMap.remove(m.getName());
-		for (ConcurrentLinkedQueue c : subscriptionList.values()) {
-			if (c.contains(m)) {
-				c.remove(m);
-			}
+		if (m.getName() != null) {
+			hashMap.put(m.getName(), q);
 		}
 	}
 
 	@Override
-	public  Message awaitMessage(MicroService m) throws InterruptedException {
-		return hashMap.get(m.getName()).take();
+	public synchronized void unregister(MicroService m) {
+		if (m.getName() != null) {
+			hashMap.remove(m.getName());
+		}
+		for (ConcurrentLinkedQueue c : subscriptionList.values())
+			c.remove(m);
+	}
 
+	@Override
+	public  Message awaitMessage(MicroService m) throws InterruptedException {
+		if (hashMap.containsKey(m.getName())) {
+			return hashMap.get(m.getName()).take();
+		}
+		return null;
 	}
 }

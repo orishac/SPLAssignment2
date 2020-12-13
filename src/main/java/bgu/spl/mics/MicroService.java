@@ -150,6 +150,10 @@ public abstract class MicroService implements Runnable {
         writeDiary();
     }
 
+    /**
+     * each Microservice waits for all the other Microsevices to reach this section
+     * then the Microservice update the diary with its termination time
+     */
     private void writeDiary() {
         if (this.name == "Leia") {
             latch1.countDown();
